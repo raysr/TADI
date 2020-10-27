@@ -149,7 +149,7 @@ def couleurs_alea(im):
 
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
-im=skio.imread('Images/cailloux.png')
+im=skio.imread('Images/bat200.bmp')
 ax = plt.gca()
 fig = plt.gcf()
 implot = ax.imshow(im)
@@ -168,11 +168,21 @@ def onclick(event):
             #print("Arrived0")
             marqueurs[tuple(np.transpose(coordinates))] = 0
             marqueurs = np.array(marqueurs, dtype=np.uint8)
+            marqueurs[0, :] = 0
+            marqueurs[:, 0] = 0
+            marqueurs[marqueurs.shape[0]-1, :] = 0
+            marqueurs[:, marqueurs.shape[1]-1] = 0
+
+            se=morpho.selem.disk(1)
+
+            grad=morpho.dilation(im,se)-morpho.erosion(im,se)
+            grad=np.int32(grad>40)*grad
+
             #print("Arrived1")
             #print("Marqueurs shape : "+str(marqueurs.shape))
             #print("Arrived2")
             #print("Image shape : "+str(im.shape))
-            intersect = morpho.erosion(im, marqueurs)
+            intersect = morpho.reconstruction(marqueurs, grad)
             #print(reconstruite)
             plt.imshow(intersect, cmap="gray")
             plt.show()
